@@ -10,6 +10,7 @@ namespace VOforSettings
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Go");
         }
     }
 }
