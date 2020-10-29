@@ -4,6 +4,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Net;
+using System.Linq;
+using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace D365S2S
 {
@@ -11,27 +16,24 @@ namespace D365S2S
     {
         static void Main(string[] args)
         {
-            var contacts = CrmRequest(
-                HttpMethod.Get,
-                "https://udstrialsdemo40.crm4.dynamics.com/api/data/v9.1/contacts")
-                .Result.Content.ReadAsStringAsync();
-            // Similarly you can make POST, PATCH & DELETE requests 
-            
 
-                    JObject jRetrieveResponse =
-                        JObject.Parse(contacts.Result);
-            //string fullname = jRetrieveResponse["fullname"].ToString();
-            //Console.WriteLine("Fullname " + fullname);
 
-            string test = "https://udstrialsdemo40.crm4.dynamics.com/api/data/v9.1/contacts";
-            //int i = test.IndexOf("api");
-            test = test.Remove(test.IndexOf("api"));
+            StartCrmRequest();
 
-            Console.WriteLine(contacts.Result);
             Console.ReadLine();
-            
         }
 
+
+
+        public static void StartCrmRequest()
+        {
+            var contacts = CrmRequest(
+                HttpMethod.Get,
+                "https://udstrialsdemo40.crm4.dynamics.com/api/data/v9.1/contacts"
+                ).Result.Content.ReadAsStringAsync(); 
+            // Similarly you can make POST, PATCH & DELETE requests 
+            Console.WriteLine(contacts.Result);
+        }
         public static async Task<string> AccessTokenGenerator()
         {
             string clientId = "00aea9ee-9733-41d2-b1c7-b2d2207fb471"; // Your Azure AD Application ID  
@@ -44,7 +46,6 @@ namespace D365S2S
             var result = await authContext.AcquireTokenAsync(resourceUrl, credentials);
             return result.AccessToken;
         }
-
         public static async Task<HttpResponseMessage> CrmRequest(HttpMethod httpMethod, string requestUri, string body = null)
         {
             // Acquiring Access Token  
@@ -67,5 +68,48 @@ namespace D365S2S
 
             return await client.SendAsync(message);
         }
+
+    }
+
+
+    public class ContactsModel
+    {
+        [JsonPropertyName("customertypecode")]
+        public int CustomerTypeCode { get; set; }
+
+        [JsonPropertyName("address1_addressid")]
+        public string Address1AddressId { get; set; }
+
+        [JsonPropertyName("address2_addressid")]
+        public string Address2AddressId { get; set; }
+
+        [JsonPropertyName("address3_addressid")]
+        public string Address3AddressId { get; set; }
+
+        [JsonPropertyName("contactid")]
+        public string ContactId { get; set; }
+
+        [JsonPropertyName("createdon")]
+        public string CreatedOn { get; set; }
+
+        [JsonPropertyName("firstname")]
+        public string FirstName { get; set; }
+
+        [JsonPropertyName("lastname")]
+        public string LastName { get; set; }
+
+        [JsonPropertyName("statecode")]
+        public int StateCode { get; set; }
+
+        [JsonPropertyName("statuscode")]
+        public int StatusCode { get; set; }
+
+        [JsonPropertyName("emailaddress1")]
+        public string EmailAddress { get; set; }
+    }
+
+    public class DynamicsEntityCollection<T>
+    {
+        public IList<T> Value { get; set; }
     }
 }
